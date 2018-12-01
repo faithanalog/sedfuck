@@ -683,11 +683,19 @@ define(`r_bf_xblkend', `
 ')
 
 : main
+    # Read until a line with only "$$$ENDSCRIPT$$$" as the contents
+    : read_script_lp
+    N
+    /\$\$\$ENDSCRIPT\$\$\$$/ {
+        b read_script_end
+    }
+    b read_script_lp
+    : read_script_end
     # Convert brainfuck script in first line to bytecode
-    # Have to use a different stack terminator, and switch back afterwards
-    
     # Delete irrelevant characters
-    s/[^><+-\.,\[\]]//g
+    s/\n//g
+    # Order is inconsistent because sed is weird
+    s/[^][><+-.,]//g
 
     # Convert to numbers because its easier to deal with
     # The order is weird because otherwise sed breaks with the square brackets
@@ -773,9 +781,7 @@ define(`r_bf_xblkend', `
     b main_loop_start
 
     : prog_end
-    r_pushnum(0x0a)
-    r_putc
-    b
+    q
 
 # TODO make this a tree instead of linear search
 # IMPORTANT
@@ -795,5 +801,5 @@ define(`r_bf_xblkend', `
     popdef(`_lp')
     i Dynamic dispatch failed; printing stack:
     p
-    b
+    q
 

@@ -404,10 +404,19 @@ b main
 # *left*, because our read head is always in the same place.
  # TODO
 : main
+    # Read until a line with only "$$$ENDSCRIPT$$$" as the contents
+    : read_script_lp
+    N
+    /\$\$\$ENDSCRIPT\$\$\$$/ {
+        b read_script_end
+    }
+    b read_script_lp
+    : read_script_end
     # Convert brainfuck script in first line to bytecode
-    # Have to use a different stack terminator, and switch back afterwards
     # Delete irrelevant characters
-    s/[^><+-\.,\[\]]//g
+    s/\n//g
+    # Order is inconsistent because sed is weird
+    s/[^][><+-.,]//g
     # Convert to numbers because its easier to deal with
     # The order is weird because otherwise sed breaks with the square brackets
     y/[><+-.,]/60123457/
@@ -959,11 +968,7 @@ b main
         s/|||\([0-8]\)\([0-8]*\)/|||\2\1/
     b main_loop_start
     : prog_end
-    s/^/00001010<>/
-        s/|||/000005<>|||/
-        b func_r_putc
-        : dynamic_000005
-    b
+    q
 # TODO make this a tree instead of linear search
 # IMPORTANT
 # This has to be the very last thing in the file for this code to work
@@ -977,7 +982,6 @@ b main
         s/^000002<>//; t dynamic_000002
         s/^000003<>//; t dynamic_000003
         s/^000004<>//; t dynamic_000004
-        s/^000005<>//; t dynamic_000005
     i Dynamic dispatch failed; printing stack:
     p
-    b
+    q
