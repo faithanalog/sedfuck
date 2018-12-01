@@ -401,7 +401,11 @@ changequote`'')
         s/^20/ /; t tmp_`end'
         s/^21/!/; t tmp_`end'
         s/^22/"/; t tmp_`end'
-        s/^23/#/; t tmp_`end'
+        # Some versions of m4 take the next # to be a comment, so I split this
+        # specific character cross multiple lines for macro expansion to work
+        # for the label
+        s/^23/#/
+        t tmp_`end'
         s/^24/$/; t tmp_`end'
         s/^25/%/; t tmp_`end'
         s/^26/&/; t tmp_`end'

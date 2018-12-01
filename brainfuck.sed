@@ -268,7 +268,11 @@ b main
         s/^20/ /; t anon_000024end
         s/^21/!/; t anon_000024end
         s/^22/"/; t anon_000024end
-        s/^23/#/; t tmp_`end'
+        # Some versions of m4 take the next # to be a comment, so I split this
+        # specific character cross multiple lines for macro expansion to work
+        # for the label
+        s/^23/#/
+        t anon_000024end
         s/^24/$/; t anon_000024end
         s/^25/%/; t anon_000024end
         s/^26/&/; t anon_000024end
