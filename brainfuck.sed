@@ -404,17 +404,9 @@ b main
 # *left*, because our read head is always in the same place.
  # TODO
 : main
-    # Read until a line with only "$$$ENDSCRIPT$$$" as the contents
-    : read_script_lp
-    N
-    /\$\$\$ENDSCRIPT\$\$\$$/ {
-        b read_script_end
-    }
-    b read_script_lp
-    : read_script_end
     # Convert brainfuck script in first line to bytecode
+    # All other lines are stdin
     # Delete irrelevant characters
-    s/\n//g
     # Order is inconsistent because sed is weird
     s/[^][><+-.,]//g
     # Convert to numbers because its easier to deal with
