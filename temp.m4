@@ -16,7 +16,7 @@ b main
     # Swap: { x; s/$/\n/; G; h x [a b c] -> a b c x [a b c x]
     #       }           
     
-    # Stack operations a la lisp 
+    # Stack operations a la FORTH 
     # These treat pattern space as a stack, using \x01 as element
     # terminators. Empty stack is a \x01 byte. Front of the stack is ^
     define(`LQ',`changequote(<,>)`dnl'
@@ -39,7 +39,7 @@ changequote`'')
     # Call convention is to push the return address to the end of the stack
     define(`r_call', `
         define(`_jmpidx', incr(_jmpidx))
-        s/$/format(`%06d', _jmpidx)<>/
+        s/|||/format(`%06d', _jmpidx)<>|||/
         b func_`$1'
         : `dynamic_'format(`%06d', _jmpidx)
     ')
@@ -116,35 +116,44 @@ changequote`'')
     r_endfunc
 
     # Negate 8-bit number
-    r_func(`neg')
+    define(`r_neg', `
+        r_clearBranchCache
         pushdef(`step_', r_anon)
         # Invert each bit one at a time
-        s/^\([01]*\)0<>/\11<>/; t step_`1'
-        s/^\([01]*\)1<>/\10<>/;
+        s/^\([01][01][01][01][01][01][01]\)0/\11/; t step_`1'
+        s/^\([01][01][01][01][01][01][01]\)1/\10/; t step_`1'
         : step_`1'
-        s/^\([01]*\)0\([01]\)<>/\11\2<>/; t step_`2'
-        s/^\([01]*\)1\([01]\)<>/\10\2<>/;
+
+        s/^\([01][01][01][01][01][01]\)0\([01]\)/\11\2/; t step_`2'
+        s/^\([01][01][01][01][01][01]\)1\([01]\)/\10\2/; t step_`2'
         : step_`2'
-        s/^\([01]*\)0\([01][01]\)<>/\11\2<>/; t step_`3'
-        s/^\([01]*\)1\([01][01]\)<>/\10\2<>/;
+
+        s/^\([01][01][01][01][01]\)0\([01][01]\)/\11\2/; t step_`3'
+        s/^\([01][01][01][01][01]\)1\([01][01]\)/\10\2/; t step_`3'
         : step_`3'
-        s/^\([01]*\)0\([01][01][01]\)<>/\11\2<>/; t step_`4'
-        s/^\([01]*\)1\([01][01][01]\)<>/\10\2<>/;
+
+        s/^\([01][01][01][01]\)0\([01][01][01]\)/\11\2/; t step_`4'
+        s/^\([01][01][01][01]\)1\([01][01][01]\)/\10\2/; t step_`4'
         : step_`4'
-        s/^\([01]*\)0\([01][01][01][01]\)<>/\11\2<>/; t step_`5'
-        s/^\([01]*\)1\([01][01][01][01]\)<>/\10\2<>/;
+
+        s/^\([01][01][01]\)0\([01][01][01][01]\)/\11\2/; t step_`5'
+        s/^\([01][01][01]\)1\([01][01][01][01]\)/\10\2/; t step_`5'
         : step_`5'
-        s/^\([01]*\)0\([01][01][01][01][01]\)<>/\11\2<>/; t step_`6'
-        s/^\([01]*\)1\([01][01][01][01][01]\)<>/\10\2<>/;
+
+        s/^\([01][01]\)0\([01][01][01][01][01]\)/\11\2/; t step_`6'
+        s/^\([01][01]\)1\([01][01][01][01][01]\)/\10\2/; t step_`6'
         : step_`6'
-        s/^\([01]*\)0\([01][01][01][01][01][01]\)<>/\11\2<>/; t step_`7'
-        s/^\([01]*\)1\([01][01][01][01][01][01]\)<>/\10\2<>/;
+
+        s/^\([01]\)0\([01][01][01][01][01][01]\)/\11\2/; t step_`7'
+        s/^\([01]\)1\([01][01][01][01][01][01]\)/\10\2/; t step_`7'
         : step_`7'
-        s/^\([01]*\)0\([01][01][01][01][01][01][01]\)<>/\11\2<>/; t step_`8'
-        s/^\([01]*\)1\([01][01][01][01][01][01][01]\)<>/\10\2<>/;
+
+        s/^0\([01][01][01][01][01][01][01]\)/1\1/; t step_`8'
+        s/^1\([01][01][01][01][01][01][01]\)/0\1/; t step_`8'
         : step_`8'
+
         popdef(`step_')
-    r_endfunc
+    ')
 
     define(`r_sub', `
         r_neg
@@ -152,13 +161,61 @@ changequote`'')
     ')
 
     define(`r_inc', `
-        r_pushnum(1)
-        r_add
+        r_clearBranchCache
+        pushdef(`step_', r_anon)
+        # Increment one bit at a time
+        s/^\([01][01][01][01][01][01][01]\)0/0\11/; t step_`1'
+        s/^\([01][01][01][01][01][01][01]\)1/1\10/; t step_`1'
+        : step_`1'
+
+        s/^0\([01][01][01][01][01][01]\)0\([01]\)/0\10\2/; t step_`2'
+        s/^0\([01][01][01][01][01][01]\)1\([01]\)/0\11\2/; t step_`2'
+        s/^1\([01][01][01][01][01][01]\)0\([01]\)/0\11\2/; t step_`2'
+        s/^1\([01][01][01][01][01][01]\)1\([01]\)/1\10\2/; t step_`2'
+        : step_`2'
+
+        s/^0\([01][01][01][01][01]\)0\([01][01]\)/0\10\2/; t step_`3'
+        s/^0\([01][01][01][01][01]\)1\([01][01]\)/0\11\2/; t step_`3'
+        s/^1\([01][01][01][01][01]\)0\([01][01]\)/0\11\2/; t step_`3'
+        s/^1\([01][01][01][01][01]\)1\([01][01]\)/1\10\2/; t step_`3'
+        : step_`3'
+
+        s/^0\([01][01][01][01]\)0\([01][01][01]\)/0\10\2/; t step_`4'
+        s/^0\([01][01][01][01]\)1\([01][01][01]\)/0\11\2/; t step_`4'
+        s/^1\([01][01][01][01]\)0\([01][01][01]\)/0\11\2/; t step_`4'
+        s/^1\([01][01][01][01]\)1\([01][01][01]\)/1\10\2/; t step_`4'
+        : step_`4'
+
+        s/^0\([01][01][01]\)0\([01][01][01][01]\)/0\10\2/; t step_`5'
+        s/^0\([01][01][01]\)1\([01][01][01][01]\)/0\11\2/; t step_`5'
+        s/^1\([01][01][01]\)0\([01][01][01][01]\)/0\11\2/; t step_`5'
+        s/^1\([01][01][01]\)1\([01][01][01][01]\)/1\10\2/; t step_`5'
+        : step_`5'
+
+        s/^0\([01][01]\)0\([01][01][01][01][01]\)/0\10\2/; t step_`6'
+        s/^0\([01][01]\)1\([01][01][01][01][01]\)/0\11\2/; t step_`6'
+        s/^1\([01][01]\)0\([01][01][01][01][01]\)/0\11\2/; t step_`6'
+        s/^1\([01][01]\)1\([01][01][01][01][01]\)/1\10\2/; t step_`6'
+        : step_`6'
+
+        s/^0\([01]\)0\([01][01][01][01][01][01]\)/0\10\2/; t step_`7'
+        s/^0\([01]\)1\([01][01][01][01][01][01]\)/0\11\2/; t step_`7'
+        s/^1\([01]\)0\([01][01][01][01][01][01]\)/0\11\2/; t step_`7'
+        s/^1\([01]\)1\([01][01][01][01][01][01]\)/1\10\2/; t step_`7'
+        : step_`7'
+
+        s/^00\([01][01][01][01][01][01][01]\)/0\1/; t step_`8'
+        s/^01\([01][01][01][01][01][01][01]\)/1\1/; t step_`8'
+        s/^10\([01][01][01][01][01][01][01]\)/1\1/; t step_`8'
+        s/^11\([01][01][01][01][01][01][01]\)/0\1/; t step_`8'
+        : step_`8'
+        popdef(`step_')
     ')
 
     define(`r_dec', `
-        r_pushnum(1)
-        r_sub
+        r_neg
+        r_inc
+        r_neg
     ')
 
     define(`r_not', `
@@ -213,7 +270,7 @@ changequote`'')
     define(`r_rshift', `s/^\([01]*\)[01]<>/0\1<>/')
     define(`r_lshift', `s/^[01]\([01]*\)<>/\10<>/')
 
-    # BitAnd
+    # 8-bit And
     r_func(`bitand')
         s/^/<>/
         r_clearBranchCache
@@ -240,24 +297,25 @@ changequote`'')
         r_dup
         r_pushnum(0xF)
         r_bitand
+        s/^0000//
         r_clearBranchCache
         pushdef(`_end', r_anon)
-        s/^00000000<>/0<>/; t _end
-        s/^00000001<>/1<>/; t _end
-        s/^00000010<>/2<>/; t _end
-        s/^00000011<>/3<>/; t _end
-        s/^00000100<>/4<>/; t _end
-        s/^00000101<>/5<>/; t _end
-        s/^00000110<>/6<>/; t _end
-        s/^00000111<>/7<>/; t _end
-        s/^00001000<>/8<>/; t _end
-        s/^00001001<>/9<>/; t _end
-        s/^00001010<>/A<>/; t _end
-        s/^00001011<>/B<>/; t _end
-        s/^00001100<>/C<>/; t _end
-        s/^00001101<>/D<>/; t _end
-        s/^00001110<>/E<>/; t _end
-        s/^00001111<>/F<>/; t _end
+        s/^0000<>/0<>/; t _end
+        s/^0001<>/1<>/; t _end
+        s/^0010<>/2<>/; t _end
+        s/^0011<>/3<>/; t _end
+        s/^0100<>/4<>/; t _end
+        s/^0101<>/5<>/; t _end
+        s/^0110<>/6<>/; t _end
+        s/^0111<>/7<>/; t _end
+        s/^1000<>/8<>/; t _end
+        s/^1001<>/9<>/; t _end
+        s/^1010<>/A<>/; t _end
+        s/^1011<>/B<>/; t _end
+        s/^1100<>/C<>/; t _end
+        s/^1101<>/D<>/; t _end
+        s/^1110<>/E<>/; t _end
+        s/^1111<>/F<>/; t _end
         : _end
         popdef(`_end')
         r_swap
@@ -267,24 +325,25 @@ changequote`'')
         r_rshift
         r_pushnum(0xF)
         r_bitand
+        s/^0000//
         r_clearBranchCache
         pushdef(`_end', r_anon)
-        s/^00000000<>/0/; t _end
-        s/^00000001<>/1/; t _end
-        s/^00000010<>/2/; t _end
-        s/^00000011<>/3/; t _end
-        s/^00000100<>/4/; t _end
-        s/^00000101<>/5/; t _end
-        s/^00000110<>/6/; t _end
-        s/^00000111<>/7/; t _end
-        s/^00001000<>/8/; t _end
-        s/^00001001<>/9/; t _end
-        s/^00001010<>/A/; t _end
-        s/^00001011<>/B/; t _end
-        s/^00001100<>/C/; t _end
-        s/^00001101<>/D/; t _end
-        s/^00001110<>/E/; t _end
-        s/^00001111<>/F/; t _end
+        s/^0000<>/0/; t _end
+        s/^0001<>/1/; t _end
+        s/^0010<>/2/; t _end
+        s/^0011<>/3/; t _end
+        s/^0100<>/4/; t _end
+        s/^0101<>/5/; t _end
+        s/^0110<>/6/; t _end
+        s/^0111<>/7/; t _end
+        s/^1000<>/8/; t _end
+        s/^1001<>/9/; t _end
+        s/^1010<>/A/; t _end
+        s/^1011<>/B/; t _end
+        s/^1100<>/C/; t _end
+        s/^1101<>/D/; t _end
+        s/^1110<>/E/; t _end
+        s/^1111<>/F/; t _end
         : _end
         popdef(`_end')
         s/^\([0-9A-F]\)<>\([0-9A-F]\)<>/\2\1<>/
@@ -479,17 +538,239 @@ changequote`'')
 #    : decrement
 
 
+
+# Memory access
+define(`r_bf_irotl', `s/|||\([0-8]\)\([0-8]*\)/|||\2\1/')
+define(`r_bf_irotr', `s/|||\([0-8]*\)\([0-8]\)/|||\2\1/')
+define(`r_bf_iget', `s/^\(.*\)|||\([0-8]\)/\2<>\1|||\2/')
+
+# Rotations will auto-grow tape memory space
+define(`r_bf_mrotl', `
+    s/\([01@]*\)\(........\)$/\2\1/
+    s/@@@@@@@@$/@@@@@@@@00000000/
+')
+define(`r_bf_mrotr', `
+    s/###\(........\)\(.*\)$/###\2\1/
+    s/###\(.*\)@@@@@@@@$/###@@@@@@@@\100000000/
+')
+
+define(`r_bf_mget', `s/^\(.*\)\(........\)$/\2<>\1\2/')
+define(`r_bf_mset', `s/^\(........\)<>\(.*\)........$/\2\1/')
+
+# Functions
+# Counterintuitively, moving the pointer right means rotating the memory
+# *left*, because our read head is always in the same place.
+define(`r_bf_xptrr', `r_bf_mrotl')
+define(`r_bf_xptrl', `r_bf_mrotr')
+define(`r_bf_xinc', `
+    r_bf_mget
+    r_inc
+    r_bf_mset
+')
+define(`r_bf_xdec', `
+    r_bf_mget
+    r_dec
+    r_bf_mset
+')
+define(`r_bf_xout', `
+    r_bf_mget
+    r_putc
+')
+define(`r_bf_xin', `') # TODO
+
+define(`r_bf_xblkstart', `
+    r_bf_mget
+    r_clearBranchCache
+    /^00000000/ {
+        # We could drop the top value and push the depth, but
+        # we need the depth to be 0, which is our top value,
+        # so we just leave the top value of the stack to be the depth
+
+        pushdef(`_start', r_anon)
+        pushdef(`_end', r_anon)
+        : _start
+        r_bf_irotl
+        r_bf_iget
+
+        # Closing brace at depth 0: done
+        /^7<>00000000/ {
+            r_drop
+            b _end
+        }
+
+        # Closing brace at any other depth: dec depth
+        /^7<>/ {
+            r_drop
+            r_dec
+            b _start
+        }
+
+        # Open brace: increase depth
+        /^6<>/ {
+            r_drop
+            r_inc
+            b _start
+        }
+
+        # Anything else: just chill
+        r_drop
+        b _start
+
+        : _end
+
+        # Let the drop after this block drop the depth
+
+        popdef(`_start')
+        popdef(`_end')
+    }
+    r_drop
+')
+
+define(`r_bf_xblkend', `
+    r_bf_mget
+    pushdef(`_nop', r_anon)
+    /^00000000<>/ b _nop
+
+    r_drop
+
+    # Put depth on stack
+    r_pushnum(0)
+
+    pushdef(`_start', r_anon)
+    pushdef(`_end', r_anon)
+    : _start
+    r_bf_irotr
+    r_bf_iget
+
+    # Open brace at depth 0: done
+    /^6<>00000000<>/ {
+        r_drop
+        b _end
+    }
+
+    # Open brace at any other depth: dec depth
+    /^6<>/ {
+        r_drop
+        r_dec
+        b _start
+    }
+
+    # Close brace: increase depth
+    /^7<>/ {
+        r_drop
+        r_inc
+        b _start
+    }
+
+    # Anything else: just chill
+    r_drop
+    b _start
+
+    : _end
+
+    # the end r_drop will drop out depth
+    popdef(`_start')
+    popdef(`_end')
+
+
+    : _nop
+    popdef(`_nop')
+    r_drop
+')
+
 : main
+    # Convert brainfuck script in first line to bytecode
+    # Have to use a different stack terminator, and switch back afterwards
+    
+    # Delete irrelevant characters
+    s/[^><+-\.,\[\]]//g
 
-    s/^.*$/hi<>/g
+    # Convert to numbers because its easier to deal with
+    # The order is weird because otherwise sed breaks with the square brackets
+    y/[><+-.,]/60123457/
 
-    r_pushnum(0x70)
-    r_putc
-    r_pushnum(0x71)
-    r_putc
+    # Make sure braces are balanced
+    h
+    r_clearBranchCache
+    : braceVerificationLoop
+    s/[^67]//
+    s/67//; t braceVerificationLoop
+    /^[67]$/ {
+        s/^.*$//
+        i Error: imbalanced braces
+        p
+        b
+    }
+    
+    # Clear out the buffer and swap
+    s/^.*$//
+    x
+
+    # Add an EOF to the code
+    s/$/8/
+
+
+    # Add stack barrier in front of code
+    s/^/|||/
+    
+    # Add tape memory after code (1 byte)
+    s/$/###@@@@@@@@00000000/
+    # Grow tape memory to 32 bytes
+    #s/###\(0*\)$/###\1\1/
+    #s/###\(0*\)$/###\1\1/
+    #s/###\(0*\)$/###\1\1/
+    #s/###\(0*\)$/###\1\1/
+    #s/###\(0*\)$/###\1\1/
+    #s/###\(0*\)$/###\1\1/
+    #s/###\(0*\)$/###\1\1/
+    #s/###\(0*\)$/###\1\1/
+
+    # Main execution cycle
+    : main_loop_start
+        r_bf_iget
+        /^0<>/ { 
+            r_bf_xptrr
+            b main_loop_end
+        }
+        /^1<>/ { 
+            r_bf_xptrl
+            b main_loop_end
+        }
+        /^2<>/ { 
+            r_bf_xinc
+            b main_loop_end
+        }
+        /^3<>/ { 
+            r_bf_xdec
+            b main_loop_end
+        }
+        /^4<>/ { 
+            r_bf_xout
+            b main_loop_end
+        }
+        /^5<>/ { 
+            r_bf_xin
+            b main_loop_end
+        }
+        /^6<>/ { 
+            r_bf_xblkstart
+            b main_loop_end
+        }
+        /^7<>/ { 
+            r_bf_xblkend
+            b main_loop_end
+        }
+        /^8<>/ {
+            b prog_end
+        }
+        : main_loop_end
+        r_drop
+        r_bf_irotl
+    b main_loop_start
+
+    : prog_end
     r_pushnum(0x0a)
     r_putc
-
     b
 
 # TODO make this a tree instead of linear search
@@ -498,7 +779,7 @@ changequote`'')
 : dynamicDispatch
     # Move return addr from the bottom to the top of the stack for faster
     # searches
-    s/^\(.*\)\([0-9][0-9][0-9][0-9][0-9][0-9]<>\)$/\2\1/
+    s/^\(.*\)\([0-9][0-9][0-9][0-9][0-9][0-9]<>\)|||/\2\1|||/
     r_clearBranchCache
     pushdef(`_i', 0)
     pushdef(`_lp', `
