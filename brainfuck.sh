@@ -13,4 +13,4 @@ if [ $# -eq 0 ]; then
     exit 1
 fi
 
-cat "$1" | sed -n -f brainfuck.sed
+cat "$1" - | sed -n -f brainfuck.sed

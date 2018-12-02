@@ -14,7 +14,8 @@ define(`r_ascii', `format(`%c', eval($1))')
 define(`r_pushstr', `s/^/`$1'<>/')
 
 # Push a numeric constant to the stack as an 8-bit integer
-define(`r_pushnum', `s/^/format(`%d%d%d%d%d%d%d%d',eval((($1) >> 7) & 1),eval((($1) >> 6) & 1),eval((($1) >> 5) & 1),eval((($1) >> 4) & 1),eval((($1) >> 3) & 1),eval((($1) >> 2) & 1),eval((($1) >> 1) & 1),eval(($1) & 1))<>/')
+define(`s_binary', `format(`%d%d%d%d%d%d%d%d',eval((($1) >> 7) & 1),eval((($1) >> 6) & 1),eval((($1) >> 5) & 1),eval((($1) >> 4) & 1),eval((($1) >> 3) & 1),eval((($1) >> 2) & 1),eval((($1) >> 1) & 1),eval(($1) & 1))')
+define(`r_pushnum', `s/^/s_binary(`$1')<>/')
 
 
 # This index is used for generating sequential labels for function returns
@@ -232,6 +233,7 @@ define(`r_eq', `
     s/^\(........\)<>\1/00000001/;   t _end
     s/^........<>......../00000000/;
     : _end
+    popdef(`_end')
 ')
 
 # [X Y] -> [X<=Y]
@@ -363,6 +365,14 @@ r_func(`putc')
     /^5/ b tmp_`5'
     /^6/ b tmp_`6'
     /^7/ b tmp_`7'
+    /^8/ b tmp_`8'
+    /^9/ b tmp_`9'
+    /^A/ b tmp_`A'
+    /^B/ b tmp_`B'
+    /^C/ b tmp_`C'
+    /^D/ b tmp_`D'
+    /^E/ b tmp_`E'
+    /^F/ b tmp_`F'
 
     : tmp_`0'
     s/^01/r_ascii(0x01)/; t tmp_`end'
@@ -409,7 +419,7 @@ r_func(`putc')
     t tmp_`end'
     s/^24/$/; t tmp_`end'
     s/^25/%/; t tmp_`end'
-    s/^26/&/; t tmp_`end'
+    s/^26/\&/; t tmp_`end'
     s/^27/RQ()/; t tmp_`end'
     s/^28/(/; t tmp_`end'
     s/^29/)/; t tmp_`end'
@@ -510,14 +520,156 @@ r_func(`putc')
     s/^7E/~/; t tmp_`end'
     s/^7F/r_ascii(0x7F)/; t tmp_`end'
 
+    : tmp_`8'
+    s/^80/r_ascii(0x80)/; t tmp_`end'
+    s/^81/r_ascii(0x81)/; t tmp_`end'
+    s/^82/r_ascii(0x82)/; t tmp_`end'
+    s/^83/r_ascii(0x83)/; t tmp_`end'
+    s/^84/r_ascii(0x84)/; t tmp_`end'
+    s/^85/r_ascii(0x85)/; t tmp_`end'
+    s/^86/r_ascii(0x86)/; t tmp_`end'
+    s/^87/r_ascii(0x87)/; t tmp_`end'
+    s/^88/r_ascii(0x88)/; t tmp_`end'
+    s/^89/r_ascii(0x89)/; t tmp_`end'
+    s/^8A/r_ascii(0x8A)/; t tmp_`end'
+    s/^8B/r_ascii(0x8B)/; t tmp_`end'
+    s/^8C/r_ascii(0x8C)/; t tmp_`end'
+    s/^8D/r_ascii(0x8D)/; t tmp_`end'
+    s/^8E/r_ascii(0x8E)/; t tmp_`end'
+    s/^8F/r_ascii(0x8F)/; t tmp_`end'
+
+    : tmp_`9'
+    s/^90/r_ascii(0x90)/; t tmp_`end'
+    s/^91/r_ascii(0x91)/; t tmp_`end'
+    s/^92/r_ascii(0x92)/; t tmp_`end'
+    s/^93/r_ascii(0x93)/; t tmp_`end'
+    s/^94/r_ascii(0x94)/; t tmp_`end'
+    s/^95/r_ascii(0x95)/; t tmp_`end'
+    s/^96/r_ascii(0x96)/; t tmp_`end'
+    s/^97/r_ascii(0x97)/; t tmp_`end'
+    s/^98/r_ascii(0x98)/; t tmp_`end'
+    s/^99/r_ascii(0x99)/; t tmp_`end'
+    s/^9A/r_ascii(0x9A)/; t tmp_`end'
+    s/^9B/r_ascii(0x9B)/; t tmp_`end'
+    s/^9C/r_ascii(0x9C)/; t tmp_`end'
+    s/^9D/r_ascii(0x9D)/; t tmp_`end'
+    s/^9E/r_ascii(0x9E)/; t tmp_`end'
+    s/^9F/r_ascii(0x9F)/; t tmp_`end'
+
+    : tmp_`A'
+    s/^A0/r_ascii(0xA0)/; t tmp_`end'
+    s/^A1/r_ascii(0xA1)/; t tmp_`end'
+    s/^A2/r_ascii(0xA2)/; t tmp_`end'
+    s/^A3/r_ascii(0xA3)/; t tmp_`end'
+    s/^A4/r_ascii(0xA4)/; t tmp_`end'
+    s/^A5/r_ascii(0xA5)/; t tmp_`end'
+    s/^A6/r_ascii(0xA6)/; t tmp_`end'
+    s/^A7/r_ascii(0xA7)/; t tmp_`end'
+    s/^A8/r_ascii(0xA8)/; t tmp_`end'
+    s/^A9/r_ascii(0xA9)/; t tmp_`end'
+    s/^AA/r_ascii(0xAA)/; t tmp_`end'
+    s/^AB/r_ascii(0xAB)/; t tmp_`end'
+    s/^AC/r_ascii(0xAC)/; t tmp_`end'
+    s/^AD/r_ascii(0xAD)/; t tmp_`end'
+    s/^AE/r_ascii(0xAE)/; t tmp_`end'
+    s/^AF/r_ascii(0xAF)/; t tmp_`end'
+
+    : tmp_`B'
+    s/^B0/r_ascii(0xB0)/; t tmp_`end'
+    s/^B1/r_ascii(0xB1)/; t tmp_`end'
+    s/^B2/r_ascii(0xB2)/; t tmp_`end'
+    s/^B3/r_ascii(0xB3)/; t tmp_`end'
+    s/^B4/r_ascii(0xB4)/; t tmp_`end'
+    s/^B5/r_ascii(0xB5)/; t tmp_`end'
+    s/^B6/r_ascii(0xB6)/; t tmp_`end'
+    s/^B7/r_ascii(0xB7)/; t tmp_`end'
+    s/^B8/r_ascii(0xB8)/; t tmp_`end'
+    s/^B9/r_ascii(0xB9)/; t tmp_`end'
+    s/^BA/r_ascii(0xBA)/; t tmp_`end'
+    s/^BB/r_ascii(0xBB)/; t tmp_`end'
+    s/^BC/r_ascii(0xBC)/; t tmp_`end'
+    s/^BD/r_ascii(0xBD)/; t tmp_`end'
+    s/^BE/r_ascii(0xBE)/; t tmp_`end'
+    s/^BF/r_ascii(0xBF)/; t tmp_`end'
+
+    : tmp_`C'
+    s/^C0/r_ascii(0xC0)/; t tmp_`end'
+    s/^C1/r_ascii(0xC1)/; t tmp_`end'
+    s/^C2/r_ascii(0xC2)/; t tmp_`end'
+    s/^C3/r_ascii(0xC3)/; t tmp_`end'
+    s/^C4/r_ascii(0xC4)/; t tmp_`end'
+    s/^C5/r_ascii(0xC5)/; t tmp_`end'
+    s/^C6/r_ascii(0xC6)/; t tmp_`end'
+    s/^C7/r_ascii(0xC7)/; t tmp_`end'
+    s/^C8/r_ascii(0xC8)/; t tmp_`end'
+    s/^C9/r_ascii(0xC9)/; t tmp_`end'
+    s/^CA/r_ascii(0xCA)/; t tmp_`end'
+    s/^CB/r_ascii(0xCB)/; t tmp_`end'
+    s/^CC/r_ascii(0xCC)/; t tmp_`end'
+    s/^CD/r_ascii(0xCD)/; t tmp_`end'
+    s/^CE/r_ascii(0xCE)/; t tmp_`end'
+    s/^CF/r_ascii(0xCF)/; t tmp_`end'
+
+    : tmp_`D'
+    s/^D0/r_ascii(0xD0)/; t tmp_`end'
+    s/^D1/r_ascii(0xD1)/; t tmp_`end'
+    s/^D2/r_ascii(0xD2)/; t tmp_`end'
+    s/^D3/r_ascii(0xD3)/; t tmp_`end'
+    s/^D4/r_ascii(0xD4)/; t tmp_`end'
+    s/^D5/r_ascii(0xD5)/; t tmp_`end'
+    s/^D6/r_ascii(0xD6)/; t tmp_`end'
+    s/^D7/r_ascii(0xD7)/; t tmp_`end'
+    s/^D8/r_ascii(0xD8)/; t tmp_`end'
+    s/^D9/r_ascii(0xD9)/; t tmp_`end'
+    s/^DA/r_ascii(0xDA)/; t tmp_`end'
+    s/^DB/r_ascii(0xDB)/; t tmp_`end'
+    s/^DC/r_ascii(0xDC)/; t tmp_`end'
+    s/^DD/r_ascii(0xDD)/; t tmp_`end'
+    s/^DE/r_ascii(0xDE)/; t tmp_`end'
+    s/^DF/r_ascii(0xDF)/; t tmp_`end'
+
+    : tmp_`E'
+    s/^E0/r_ascii(0xE0)/; t tmp_`end'
+    s/^E1/r_ascii(0xE1)/; t tmp_`end'
+    s/^E2/r_ascii(0xE2)/; t tmp_`end'
+    s/^E3/r_ascii(0xE3)/; t tmp_`end'
+    s/^E4/r_ascii(0xE4)/; t tmp_`end'
+    s/^E5/r_ascii(0xE5)/; t tmp_`end'
+    s/^E6/r_ascii(0xE6)/; t tmp_`end'
+    s/^E7/r_ascii(0xE7)/; t tmp_`end'
+    s/^E8/r_ascii(0xE8)/; t tmp_`end'
+    s/^E9/r_ascii(0xE9)/; t tmp_`end'
+    s/^EA/r_ascii(0xEA)/; t tmp_`end'
+    s/^EB/r_ascii(0xEB)/; t tmp_`end'
+    s/^EC/r_ascii(0xEC)/; t tmp_`end'
+    s/^ED/r_ascii(0xED)/; t tmp_`end'
+    s/^EE/r_ascii(0xEE)/; t tmp_`end'
+    s/^EF/r_ascii(0xEF)/; t tmp_`end'
+
+    : tmp_`F'
+    s/^F0/r_ascii(0xF0)/; t tmp_`end'
+    s/^F1/r_ascii(0xF1)/; t tmp_`end'
+    s/^F2/r_ascii(0xF2)/; t tmp_`end'
+    s/^F3/r_ascii(0xF3)/; t tmp_`end'
+    s/^F4/r_ascii(0xF4)/; t tmp_`end'
+    s/^F5/r_ascii(0xF5)/; t tmp_`end'
+    s/^F6/r_ascii(0xF6)/; t tmp_`end'
+    s/^F7/r_ascii(0xF7)/; t tmp_`end'
+    s/^F8/r_ascii(0xF8)/; t tmp_`end'
+    s/^F9/r_ascii(0xF9)/; t tmp_`end'
+    s/^FA/r_ascii(0xFA)/; t tmp_`end'
+    s/^FB/r_ascii(0xFB)/; t tmp_`end'
+    s/^FC/r_ascii(0xFC)/; t tmp_`end'
+    s/^FD/r_ascii(0xFD)/; t tmp_`end'
+    s/^FE/r_ascii(0xFE)/; t tmp_`end'
+    s/^FF/r_ascii(0xFF)/; t tmp_`end'
+
     : tmp_`end'
 
-    H
-    x
+    H   # Copy data buffer to stdout buffer
+    x   # Switch to stdout buffer
 
-    # Note: this will fail if you try to print a < or a > ... TODO
-    # Perhaps use a \n as the separator since lines cant contain \n
-    s/\([^<>]*\)<>.*$/\1/
+    s/\n\(.\)<>[^\n]*$/\1/
     /\n$/ {
         s/\n$//
         P
@@ -525,9 +677,84 @@ r_func(`putc')
     }
     s/\n//g
     x
-    s/[]//
+    s/.<>//
     popdef(`tmp_')
 r_endfunc
+
+r_func(`getln')
+    # Insert the newline in advance so we dont have to do it later
+    r_pushnum(0x0A)
+
+    x   # Switch to stdout buffer
+    N   # Read a line of input
+    G   # Append data buffer
+    h   # Copy over data buffer
+    s/^\([^\n]*\)\n/\2/           # Remove leading stdout buffer
+                                  # Pattern space is input\ndata
+    x   # Over to new stdout buffer
+    s/^\([^\n]*\)\n.*$/\1/        # Remove everything after the stdout buffer
+    x   # Back to data buffer
+
+    #
+    # Convert all characters up to the newline to binary
+    pushdef(`_end', r_anon)
+    pushdef(`tmp_', r_anon)
+
+    : tmp_`loopStart'
+    pushdef(`_charVal', `1')
+    pushdef(`_lp', `
+        ifelse(_charVal, eval(0x0a), ,                                  `# Dont match newlines, there wont be any
+        ifelse(_charVal, eval(0x23), `s/`#'\n/\n00100011<>/; t _end',            `# M4 Comment character
+        ifelse(_charVal, eval(0x27), `s/RQ()\n/\`n's_binary(0x27)<>/; t _end', `# Right quote
+        ifelse(_charVal, eval(0x24), `s/\$\n/\`n's_binary(0x24)<>/; t _end',   `# End of line
+        ifelse(_charVal, eval(0x2A), `s/\*\n/\`n's_binary(0x2A)<>/; t _end',   `# Start
+        ifelse(_charVal, eval(0x2E), `s/\.\n/\`n's_binary(0x2E)<>/; t _end',   `# Dot
+        ifelse(_charVal, eval(0x2F), `s/\/\n/\`n's_binary(0x2F)<>/; t _end',   `# Forward slash
+        ifelse(_charVal, eval(0x3F), `s/\*\n/\`n's_binary(0x3F)<>/; t _end',   `# Question mark
+        ifelse(_charVal, eval(0x5B), `s/\[\n/\`n's_binary(0x5B)<>/; t _end',   `# Capture group
+        ifelse(_charVal, eval(0x5C), `s/\\\n/\`n's_binary(0x5C)<>/; t _end',   `# Backslash
+        ifelse(_charVal, eval(0x5E), `s/\^\n/\`n's_binary(0x5E)<>/; t _end',   `# Regex start char
+        ifelse(_charVal, eval(0x60), `s/LQ()\n/\`n's_binary(0x60)<>/; t _end', `# Left quote
+            s/r_ascii(_charVal)\n/\`n's_binary(_charVal)<>/
+            t _end
+        ')
+        ')
+        ')
+        ')
+        ')
+        ')
+        ')
+        ')
+        ')
+        ')
+        ')
+        ')
+
+        define(`_charVal', incr(_charVal))
+        ifelse(_charVal, 255, , `_lp')
+    ')
+    _lp
+    : _end
+    # If the first char is not \n, we have more chars to process
+    /^[^\n]/ b tmp_`loopStart'
+    # Otherwise, we're done
+    popdef(`_lp')
+    popdef(`_charVal')
+    popdef(`_end')
+
+    s/^\n//
+
+r_endfunc
+
+# Assuming the top of the stack is a pointer to the stdin buffer, read a value
+# out of it, or get a new string if needed
+define(`r_getc', `
+    # Null byte terminating string, so need to read a new one
+    /^00000000<>/ {
+        r_getln
+    }
+    # Next char is on the stack now yay
+')
 
 
     # Increment a binary number
@@ -584,7 +811,16 @@ define(`r_bf_xout', `
     r_bf_mget
     r_putc
 ')
-define(`r_bf_xin', `') # TODO
+define(`r_bf_xin', `
+    # Stack state at the start of this:
+    # <instr> <stdin_buffer>
+    # In the future the instr maybe wont be there, but in the mean time
+    # since its constant we can just drop it and then put it back
+    r_drop
+    r_getc
+    r_bf_mset
+    r_pushstr(`5')
+')
 
 define(`r_bf_xblkstart', `
     r_bf_mget
@@ -721,17 +957,11 @@ define(`r_bf_xblkend', `
     # Add stack barrier in front of code
     s/^/|||/
     
-    # Add tape memory after code (1 byte)
+    # Add tape memory after code (1 byte initial, dynamically grows)
     s/$/###@@@@@@@@00000000/
-    # Grow tape memory to 32 bytes
-    #s/###\(0*\)$/###\1\1/
-    #s/###\(0*\)$/###\1\1/
-    #s/###\(0*\)$/###\1\1/
-    #s/###\(0*\)$/###\1\1/
-    #s/###\(0*\)$/###\1\1/
-    #s/###\(0*\)$/###\1\1/
-    #s/###\(0*\)$/###\1\1/
-    #s/###\(0*\)$/###\1\1/
+
+    # Add the stdin buffer nullbyte
+    r_pushnum(0x00)
 
     # Main execution cycle
     : main_loop_start
