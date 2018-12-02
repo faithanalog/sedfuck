@@ -2,9 +2,10 @@
 set -e
 
 if command -v m4 2>&1 1>/dev/null && [ -f brainfuck.sed.m4 ]; then
+    # I need to use grep -a because grep detects my sed file as a binary file...
     cat brainfuck.sed.m4 | sed '
         s/\[\]/\\([^<>]*<>\\)/g
-    ' | tee temp.m4 | m4 | grep '[^ ]' > brainfuck.sed
+    ' | tee temp.m4 | m4 | grep -a '[^ ]' > brainfuck.sed
 fi
 
 if [ $# -eq 0 ]; then
