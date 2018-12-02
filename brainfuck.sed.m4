@@ -711,7 +711,7 @@ r_func(`getln')
         ifelse(_charVal, eval(0x2A), `s/\*\n/\`n's_binary(0x2A)<>/; t _end',   `# Start
         ifelse(_charVal, eval(0x2E), `s/\.\n/\`n's_binary(0x2E)<>/; t _end',   `# Dot
         ifelse(_charVal, eval(0x2F), `s/\/\n/\`n's_binary(0x2F)<>/; t _end',   `# Forward slash
-        ifelse(_charVal, eval(0x3F), `s/\*\n/\`n's_binary(0x3F)<>/; t _end',   `# Question mark
+        ifelse(_charVal, eval(0x3F), `s/\?\n/\`n's_binary(0x3F)<>/; t _end',   `# Question mark
         ifelse(_charVal, eval(0x5B), `s/\[\n/\`n's_binary(0x5B)<>/; t _end',   `# Capture group
         ifelse(_charVal, eval(0x5C), `s/\\\n/\`n's_binary(0x5C)<>/; t _end',   `# Backslash
         ifelse(_charVal, eval(0x5E), `s/\^\n/\`n's_binary(0x5E)<>/; t _end',   `# Regex start char
