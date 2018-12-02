@@ -375,6 +375,7 @@ r_func(`putc')
     /^F/ b tmp_`F'
 
     : tmp_`0'
+    s/^00/?/; t tmp_`end'
     s/^01/r_ascii(0x01)/; t tmp_`end'
     s/^02/r_ascii(0x02)/; t tmp_`end'
     s/^03/r_ascii(0x03)/; t tmp_`end'

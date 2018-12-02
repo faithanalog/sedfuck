@@ -508,10 +508,9 @@ b dynamicDispatch
     s/^/00001010<>/
     x   # Switch to stdout buffer
     N   # Read a line of input
-    p
     G   # Append data buffer
     h   # Copy over data buffer
-    s/^\([^\n]*\)\n/\2/           # Remove leading stdout buffer
+    s/^\([^\n]*\)\n//           # Remove leading stdout buffer
                                   # Pattern space is input\ndata
     x   # Over to new stdout buffer
     s/^\([^\n]*\)\n.*$/\1/        # Remove everything after the stdout buffer
@@ -3989,7 +3988,6 @@ b dynamicDispatch
     /^[^\n]/ b anon_000026loopStart
     # Otherwise, we're done
     s/^\n//
-    p
 b dynamicDispatch
 # Assuming the top of the stack is a pointer to the stdin buffer, read a value
 # out of it, or get a new string if needed
