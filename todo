@@ -1,0 +1,20 @@
+clean up a lot of unnecssary character classes for math (can just use . since we dont typecheck anyway)
+make a version that only has the necessary functions, move the others elsewhere for future use
+comment the code to explain what's going on
+figure out how to make the m4 output nicer
+figure out how to implement reading user input
+explain the clearBranchCache macro
+maybe a version that could plausibly have been hand-written
+    less inlining
+consider hex format for numbers instead of binary for less text transactions
+more efficienct use of the hold space
+
+clustering
+pipe seds into eachother and make them be microservices
+
+
+Notes from sed source code:
+Sed will grow its text buffer dynamically, and will shrink it too
+It shrinks if the pattern size is < 33% of the buffer size
+
+# TODO store output buffer in hex until we're ready to actually print it, otherwise < and > break
