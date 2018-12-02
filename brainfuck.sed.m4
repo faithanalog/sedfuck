@@ -689,7 +689,7 @@ r_func(`getln')
     N   # Read a line of input
     G   # Append data buffer
     h   # Copy over data buffer
-    s/^\([^\n]*\)\n/\2/           # Remove leading stdout buffer
+    s/^\([^\n]*\)\n//           # Remove leading stdout buffer
                                   # Pattern space is input\ndata
     x   # Over to new stdout buffer
     s/^\([^\n]*\)\n.*$/\1/        # Remove everything after the stdout buffer
