@@ -61,45 +61,6 @@ define(`r_rot', `s/^[][][]/\2\1\3/')
 # Dup: a -> a a
 define(`r_dup', `s/^[]/\1\1/')
 
-# 2dup: a b -> a b a b
-define(`r_2dup', `s/^[][]/\1\2\1\2')
-
-# 2drop: a b c -> c
-define(`r_2drop', `s/^[][]//')
-
-# 8 bit binary add
-# X Y -> X+Y
-r_func(`add')
-    # Ripply-carry adder
-    # Insert beginning carry bit
-    s/^/0<>/
-    r_clearBranchCache
-    pushdef(`_i', 0)
-    pushdef(`_lp', `
-        pushdef(`_end', r_anon)
-        s/^0\([01]*\)<>\([01]*\)0<>\([01]*\)0<>/00\1<>\2<>\3<>/; t _end
-        s/^0\([01]*\)<>\([01]*\)1<>\([01]*\)0<>/01\1<>\2<>\3<>/; t _end
-        s/^0\([01]*\)<>\([01]*\)0<>\([01]*\)1<>/01\1<>\2<>\3<>/; t _end
-        s/^0\([01]*\)<>\([01]*\)1<>\([01]*\)1<>/10\1<>\2<>\3<>/; t _end
-
-        s/^1\([01]*\)<>\([01]*\)0<>\([01]*\)0<>/01\1<>\2<>\3<>/; t _end
-        s/^1\([01]*\)<>\([01]*\)1<>\([01]*\)0<>/10\1<>\2<>\3<>/; t _end
-        s/^1\([01]*\)<>\([01]*\)0<>\([01]*\)1<>/10\1<>\2<>\3<>/; t _end
-        s/^1\([01]*\)<>\([01]*\)1<>\([01]*\)1<>/11\1<>\2<>\3<>/; t _end
-        : _end
-        popdef(`_end')
-
-        define(`_i', incr(_i))
-        ifelse(_i, 8, , `_lp')
-    ')
-    _lp
-    popdef(`_lp')
-    popdef(`_i')
-
-    # Remove carry bit and X/Y args
-    s/^[01]\([01]*\)<>[01]*<>[01]*<>/\1<>/
-r_endfunc
-
 # Negate 8-bit number
 define(`r_neg', `
     r_clearBranchCache
@@ -138,11 +99,6 @@ define(`r_neg', `
     : step_`8'
 
     popdef(`step_')
-')
-
-define(`r_sub', `
-    r_neg
-    r_add
 ')
 
 define(`r_hex_inc', `
@@ -218,64 +174,11 @@ define(`r_dec', `
     r_neg
 ')
 
-define(`r_not', `
-    pushdef(`_end', r_anon)
-    r_clearBranchCache
-    s/^[0]*<>/00000001<>/; t _end
-    s/^[^<>]*<>/00000000<>/; t _end
-    : _end
-    popdef(`_end')
-')
-
-define(`r_eq', `
-    r_clearBranchCache
-    pushdef(`_end', r_anon)
-    s/^\(........\)<>\1/00000001/;   t _end
-    s/^........<>......../00000000/;
-    : _end
-    popdef(`_end')
-')
-
-# [X Y] -> [X<=Y]
-define(`r_lt', `
-    r_sub
-    pushdef(`_end', r_anon)
-    r_clearBranchCache
-    # If x < y then result will be positive
-    s/^0[^<>]*<>/00000001<>/; t _end
-    s/^1[^<>]*<>/00000000<>/; t _end
-    : _end
-    popdef(`_end')
-')
-
-define(`r_or', `
-    r_add
-    r_not
-    r_not
-')
-
-define(`r_and', `
-    r_not
-    r_swap
-    r_not
-    r_or
-')
-
-define(`r_le', `
-    r_2dup
-    r_lt
-    r_rot
-    r_eq
-    r_rot
-    r_or
-')
-
-
 define(`r_rshift', `s/^\([01]*\)[01]<>/0\1<>/')
 define(`r_lshift', `s/^[01]\([01]*\)<>/\10<>/')
 
 # 8-bit And
-r_func(`bitand')
+define(`r_bitand', `
     s/^/<>/
     r_clearBranchCache
     pushdef(`_i', 0)
@@ -294,9 +197,9 @@ r_func(`bitand')
     popdef(`_lp')
     popdef(`_i')
     s/[][][]/\1/
-r_endfunc
+')
 
-r_func(`bin2hex')
+define(`r_bin2hex', `
     r_dup
     r_pushnum(0xF)
     r_bitand
@@ -350,9 +253,9 @@ r_func(`bin2hex')
     : _end
     popdef(`_end')
     s/^\([0-9A-F]\)<>\([0-9A-F]\)<>/\2\1<>/
-r_endfunc
+')
 
-r_func(`putc')
+define(`r_putc', `
     r_bin2hex
     r_clearBranchCache
     pushdef(`tmp_', r_anon)
@@ -680,8 +583,10 @@ r_func(`putc')
     x
     s/.<>//
     popdef(`tmp_')
-r_endfunc
+')
 
+
+# TODO why does this break when we use define instead of func
 r_func(`getln')
     # Insert the newline in advance so we dont have to do it later
     r_pushnum(0x0A)
@@ -701,6 +606,8 @@ r_func(`getln')
     pushdef(`_end', r_anon)
     pushdef(`tmp_', r_anon)
 
+
+    # It should be possible to optimize this I think but idk
     : tmp_`loopStart'
     pushdef(`_charVal', `1')
     pushdef(`_lp', `
@@ -747,7 +654,7 @@ r_func(`getln')
 
 r_endfunc
 
-# Assuming the top of the stack is a pointer to the stdin buffer, read a value
+# Assuming the top of the stack is the head of the stdin buffer, read a value
 # out of it, or get a new string if needed
 define(`r_getc', `
     # Null byte terminating string, so need to read a new one
@@ -756,24 +663,6 @@ define(`r_getc', `
     }
     # Next char is on the stack now yay
 ')
-
-
-    # Increment a binary number
-#    : increment
-#    s/\([01]*\)0$/\11/; t endIncrement
-#    s/\([01]*\)01$/\110/; t endIncrement
-#    s/\([01]*\)011$/\1110/; t endIncrement
-#    s/\([01]*\)0111$/\11110/; t endIncrement
-#    s/\([01]*\)01111$/\111110/; t endIncrement
-#    s/\([01]*\)011111$/\1111110/; t endIncrement
-#    s/\([01]*\)0111111$/\11111110/; t endIncrement
-#    s/\([01]*\)01111111$/\111111110/; t endIncrement
-#    s/11111111$/00000000/
-#    : endIncrement
-#
-#    : decrement
-
-
 
 # Memory access
 define(`r_bf_irotl', `s/|||\([0-8]\)\([0-8]*\)/|||\2\1/')
