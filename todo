@@ -1,8 +1,4 @@
-clean up a lot of unnecssary character classes for math (can just use . since we dont typecheck anyway)
-make a version that only has the necessary functions, move the others elsewhere for future use
 comment the code to explain what's going on
-figure out how to make the m4 output nicer
-figure out how to implement reading user input
 explain the clearBranchCache macro
 maybe a version that could plausibly have been hand-written
     less inlining
@@ -18,3 +14,7 @@ Sed will grow its text buffer dynamically, and will shrink it too
 It shrinks if the pattern size is < 33% of the buffer size
 
 # TODO store output buffer in hex until we're ready to actually print it, otherwise < and > break
+
+it might be smart to accept hex or base64 input and print hex or base64 output. that gives us access to the null byte on our input and output too, and then we just have to wrap our sed execution with an encoder and decoder
+
+we could also make something which actually compiles brainfuck to sed
