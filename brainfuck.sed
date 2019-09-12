@@ -217,6 +217,7 @@ b dynamicDispatch
     /^E/ b anon_000024E
     /^F/ b anon_000024F
     : anon_0000240
+    s/^00/?/; t anon_000024end
     s/^01//; t anon_000024end
     s/^02//; t anon_000024end
     s/^03//; t anon_000024end
@@ -1322,7 +1323,7 @@ b dynamicDispatch
         # Start
         # Dot
         # Forward slash
-        s/\*\n/\n00111111<>/; t anon_000025
+        s/\?\n/\n00111111<>/; t anon_000025
         # Dont match newlines, there wont be any
         # M4 Comment character
         # Right quote
@@ -4015,7 +4016,7 @@ b dynamicDispatch
     # All other lines are stdin
     # Delete irrelevant characters
     # Order is inconsistent because sed is weird
-    s/[^][><+-.,]//g
+    s/[^][><+.,-]//g
     # Convert to numbers because its easier to deal with
     # The order is weird because otherwise sed breaks with the square brackets
     y/[><+-.,]/60123457/

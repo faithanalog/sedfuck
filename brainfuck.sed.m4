@@ -56,7 +56,7 @@ define(`r_drop', `s/^[]//')
 define(`r_swap', `s/^[][]/\2\1/')
 
 # Rot: a b c -> b c a
-define(`r_rot', `s/^[][][]/\2\1/')
+define(`r_rot', `s/^[][][]/\2\1\3/')
 
 # Dup: a -> a a
 define(`r_dup', `s/^[]/\1\1/')
@@ -928,7 +928,7 @@ define(`r_bf_xblkend', `
     # All other lines are stdin
     # Delete irrelevant characters
     # Order is inconsistent because sed is weird
-    s/[^][><+-.,]//g
+    s/[^][><+.,-]//g
 
     # Convert to numbers because its easier to deal with
     # The order is weird because otherwise sed breaks with the square brackets
